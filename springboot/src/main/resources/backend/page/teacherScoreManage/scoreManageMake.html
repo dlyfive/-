@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css" />
+    <link rel="stylesheet" href="../../styles/common.css" />
+    <link rel="stylesheet" href="../../styles/page.css" />
+    <style>
+        #member-app  .notAdmin::after{
+            border: 0 !important;
+
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container" id="scoreManageMake-app">
+    <div class="container">
+        <el-table
+                :data="tableData"
+                stripe
+                class="tableBox"
+        >
+            <el-table-column
+                    prop="username"
+                    label="学号"
+            ></el-table-column>
+            <el-table-column
+                    prop="name"
+                    label="姓名"
+            ></el-table-column>
+            <el-table-column prop="image" label="照片" align="center">
+                <template slot-scope="{ row }">
+                    <el-image style="width: auto; height: 40px; border:none;cursor: pointer;"
+                              :src="getImage(row.image)"
+                              :preview-src-list="[ `/common/download?name=${row.image}` ]" >
+                        <div slot="error" class="image-slot">
+                            <img src="./../../images/default.png"  style="width: auto; height: 40px; border:none;" >
+                        </div>
+                    </el-image>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    prop="college"
+                    label="学院"
+            ></el-table-column>
+            <el-table-column
+                    prop="totalCredits"
+                    label="已获学分"
+            ></el-table-column>
+                  <el-table-column
+                          label="操作"
+                          width="160"
+                          align="center"
+                  >
+                    <template slot-scope="scope">
+                      <el-button
+                              type="text"
+                              size="small"
+                              class="blueBug"
+                              @click="scoreMakeHandle(scope.row.id)"
+                              :class="{notAdmin:user !== 'admin'}"
+                      >
+                        课程打分
+                      </el-button>
+                    </template>
+                  </el-table-column>
+        </el-table>
+        <el-pagination
+                class="pageList"
+                :page-sizes="[10, 20, 30, 40]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="counts"
+                :current-page.sync="page"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+        ></el-pagination>
+    </div>
+    <el-dialog
+            :title="classData.title"
+            :visible.sync="classData.dialogVisible"
+            width="30%"
+            :before-close="handleClose"
+    >
+        <el-form
+                class="demo-form-inline"
+                label-width="100px"
+        >
+            <el-form-item label="打分：">
+                <el-input
+                        v-model="classData.score"
+                        placeholder="请输入该学生课程分数"
+                        maxlength="14"
+                />
+            </el-form-item>
+        </el-form>
+        <span
+                slot="footer"
+                class="dialog-footer"
+        >
+        <el-button
+                size="medium"
+                @click="classData.dialogVisible = false"
+        >取 消</el-button>
+        <el-button
+                type="primary"
+                size="medium"
+                @click="submitForm()"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="../../plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../../plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../../plugins/axios/axios.min.js"></script>
+<script src="../../js/request.js"></script>
+<script src="../../js/validate.js"></script>
+<script src="../../js/index.js"></script>
+<script src="../../api/teacherScoreManage.js"></script>
+<script>
+    new Vue({
+        el: '#scoreManageMake-app',
+        data() {
+            return {
+                id: '',
+                input: '',
+                counts: 0,
+                page: 1,
+                pageSize: 10,
+                tableData : [],
+                status : '',
+                classData: {
+                    'title': '',
+                    'dialogVisible': false,
+                    'stuId':'',
+                    'courId':'',
+                    score:'',
+                }
+            }
+        },
+        computed: {},
+        created() {
+            this.id = requestUrlParam('id')
+            // console.log(this.id)
+            this.init()
+            this.user = JSON.parse(localStorage.getItem('userInfo')).username
+        },
+        mounted() {
+        },
+        methods: {
+            async init () {
+                const params = {
+                    page: this.page,
+                    pageSize: this.pageSize,
+                    id:this.id
+                }
+                await getStudentCourseList(params).then(res => {
+                    if (String(res.code) === '1') {
+                        this.tableData = res.data.records || []
+                        this.counts = res.data.total
+                    }
+                }).catch(err => {
+                    this.$message.error('请求出错了：' + err)
+                })
+            },
+            scoreMakeHandle(rowId){
+                this.classData.title = '课程打分'
+                this.classData.dialogVisible = true
+                this.classData.stuId = rowId
+                this.classData.courId = this.id
+            },
+            // 关闭弹窗
+            handleClose(st) {
+                this.classData.dialogVisible = false
+            },
+            //数据提交
+            submitForm() {
+                console.log(this.classData.stuId)
+                console.log(this.classData.courId)
+                console.log(this.classData.score)
+                const classData = this.classData
+                const valid = (classData.score === 0 ||classData.score)
+                if (valid) {
+                    const reg = /^((?!0)\d{1,2}|100)$/
+                    if (reg.test(this.classData.score)) {
+                        // const params = {
+                        //     stuId: this.classData.stuId,
+                        //     courId: this.classData.courId,
+                        //     score:this.classData.score
+                        // }
+                        scoreMake({'stuId':this.classData.stuId,'courId': this.classData.courId, score: this.classData.score}).then(res => {
+                            console.log(res)
+                            if (res.code === 1) {
+                                this.$message.success('分数添加成功！')
+                                this.classData.dialogVisible = false
+                                this.handleQuery()
+                            } else {
+                                this.$message.error(res.msg || '操作失败')
+                            }
+                        // }).catch(err => {
+                        //     this.$message.error('请求出错了：' + err)
+                        })
+                    } else {
+                        this.$message.error('分数应为0-100')
+                    }
+                } else {
+                    this.$message.error('请输入分数')
+                }
+            },
+            getImage (image) {
+                return `/common/download?name=${image}`
+            },
+            goBack(){
+                window.parent.menuHandle({
+                    id: '7',
+                    url: '/backend/page/teacherScoreManage/scoreManage.html',
+                    name: '成绩管理'
+                },false)
+            },
+            handleSizeChange (val) {
+                this.pageSize = val
+                this.init()
+            },
+            handleCurrentChange (val) {
+                this.page = val
+                this.init()
+            }
+        }
+    })
+</script>
+</body>
+</html>
