@@ -36,13 +36,70 @@
                 />
             </el-form-item>
 
+<!--            <el-form-item-->
+<!--                    label="上课时间:"-->
+<!--                    prop="time"-->
+<!--            >-->
+<!--                <el-input-->
+<!--                        v-model="ruleForm.time"-->
+<!--                        placeholder="请输入上课时间，例9-16；星期一6-9"-->
+<!--                        maxlength="20"-->
+<!--                />-->
+<!--            </el-form-item>-->
             <el-form-item
-                    label="上课时间:"
-                    prop="time"
+                    label="课程开始周:"
+                    prop="weekStart"
             >
                 <el-input
-                        v-model="ruleForm.time"
-                        placeholder="请输入上课时间，例9-16；星期一6-9"
+                        v-model="ruleForm.weekStart"
+                        placeholder="请输入课程开始周"
+                        maxlength="20"
+                />
+            </el-form-item>
+            <el-form-item
+                    label="课程结束周:"
+                    prop="weekEnd"
+            >
+                <el-input
+                        v-model="ruleForm.weekEnd"
+                        placeholder="请输入课程结束周"
+                        maxlength="20"
+                />
+            </el-form-item>
+            <el-form-item
+                    label="课程周几上课:"
+                    prop="weekStart"
+            >
+                <el-select
+                        v-model="ruleForm.week"
+                        placeholder="请选择该课程在每周几上课"
+                >
+                    <el-option label="星期一" value="1"></el-option>
+                    <el-option label="星期二" value="2"></el-option>
+                    <el-option label="星期三" value="3"></el-option>
+                    <el-option label="星期四" value="4"></el-option>
+                    <el-option label="星期五" value="5"></el-option>
+                    <el-option label="星期六" value="6"></el-option>
+                    <el-option label="星期日" value="7"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                    label="课程开始节次:"
+                    prop="weekStart"
+            >
+                <el-input
+                        v-model="ruleForm.lessonStart"
+                        placeholder="请输入课程开始节次"
+                        maxlength="20"
+                />
+            </el-form-item>
+            <el-form-item
+                    label="课程结束节次:"
+                    prop="weekStart"
+            >
+                <el-input
+                        v-model="ruleForm.lessonEnd"
+                        placeholder="请输入课程结束节次"
                         maxlength="20"
                 />
             </el-form-item>
@@ -123,10 +180,14 @@
                 ruleForm : {
                     'name': '',
                     'tecName': '',
-                    'time': '',
                     'hours': '',
                     'credits': '',
                     'type': '必修课',
+                    'weekStart': '',
+                    'weekEnd': '',
+                    'week': '',
+                    'lessonStart': '',
+                    'lessonEnd': '',
                 }
             }
         },
@@ -143,7 +204,12 @@
                     tecName: [{ required: true, 'validator': checkName, 'trigger': 'blur' }],
                     'time': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
                     'hours': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
-                    'credits': [{ 'required': true, 'validator': checkCredits, 'trigger': 'blur' }]
+                    'credits': [{ 'required': true, 'validator': checkCredits, 'trigger': 'blur' }],
+                    'weekStart': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
+                    'weekEnd': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
+                    'week': [{ 'required': true, 'message': '请选择该课程在每周几上课', 'trigger': 'blur' }],
+                    'lessonStart': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
+                    'lessonEnd': [{ 'required': true, 'validator': checkNull, 'trigger': 'blur' }],
                 }
             }
         },
@@ -186,19 +252,16 @@
                                         this.goBack()
                                     } else {
                                         this.ruleForm = {
-                                            // username: '',
-                                            // 'name': '',
-                                            // 'phone': '',
-                                            // // 'password': '',
-                                            // // 'rePassword': '',/
-                                            // 'sex': '男',
-                                            // 'idNumber': ''
                                             'name': '',
                                             'tecName': '',
-                                            'time': '',
                                             'hours': '',
                                             'credits': '',
                                             'type': '必修课',
+                                            'weekStart': '',
+                                            'weekEnd': '',
+                                            'week': '',
+                                            'lessonStart': '',
+                                            'lessonEnd': '',
                                         }
                                     }
                                 } else {

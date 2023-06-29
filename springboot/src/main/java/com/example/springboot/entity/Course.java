@@ -12,4 +12,9 @@ public class Course {
     private String hours;
     private int credits;
     private String type;
+    private String weekStart;
+    private String weekEnd;
+    private String week;
+    private String lessonStart;
+    private String lessonEnd;
 }

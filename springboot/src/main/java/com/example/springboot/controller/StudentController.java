@@ -169,4 +169,28 @@ public class StudentController {
         scoreDtoPage.setRecords(scoreDtoList);
         return R.success(scoreDtoPage);
     }
+
+    //根据第几周获取课程信息做课程表功能
+    @GetMapping("/lessonInfo")
+    public R<List<Course>> getLessonInfo(String currentWeek,HttpServletRequest request){
+        String  stuId = request.getSession().getAttribute("user").toString();
+        LambdaQueryWrapper<Score> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Score::getStuId,stuId);
+        List<Score> list = scoreService.list(queryWrapper);
+
+        List<Course> courseList = list.stream().map((item)->{
+            LambdaQueryWrapper<Course> courseLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            courseLambdaQueryWrapper.eq(Course::getId,item.getCourId());
+            Course one = courseService.getOne(courseLambdaQueryWrapper);
+            return one;
+        }).collect(Collectors.toList());
+
+        List<Course> courseList1 = new ArrayList<>();
+        for(Course course:courseList){
+            if (Integer.parseInt(currentWeek)>=Integer.parseInt(course.getWeekStart()) && Integer.parseInt(currentWeek)<=Integer.parseInt(course.getWeekEnd())){
+                courseList1.add(course);
+            }
+        }
+        return R.success(courseList1);
+    }
 }

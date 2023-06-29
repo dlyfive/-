@@ -31,9 +31,30 @@ public class CourseController {
 
     @PostMapping
     public R<String> save(HttpServletRequest request, @RequestBody Course course){ //加@Requestbody是因为前端发来的是json格式的数据 后端不能直接用 加了才能正常封装
-//        //设置初始密码同时进行md5加密
-//        course.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
-
+        String weekChinese = null;
+        if(course.getWeek().equals("1")){
+            weekChinese = "星期一";
+        }
+        if(course.getWeek().equals("2")){
+            weekChinese = "星期二";
+        }
+        if(course.getWeek().equals("3")){
+            weekChinese = "星期三";
+        }
+        if(course.getWeek().equals("4")){
+            weekChinese = "星期四";
+        }
+        if(course.getWeek().equals("5")){
+            weekChinese = "星期五";
+        }
+        if(course.getWeek().equals("6")){
+            weekChinese = "星期六";
+        }
+        if(course.getWeek().equals("7")){
+            weekChinese = "星期七";
+        }
+        course.setTime(course.getWeekStart()+"-"+course.getWeekEnd()+"；"+weekChinese+course.getLessonStart()+"-"+course.getLessonEnd());
+        log.info(course.toString());
         courseService.save(course);
 
         return R.success("新增课程成功");
